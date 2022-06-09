@@ -1,20 +1,18 @@
-- name : Log into DockerHub
-  docker_login:
-    username: repush
-    password: "{{ lookup('env','PASS') }}"
-    
-- name : Build image and with build args
-  docker_image:
-    name: myhello
-    build:
-      path: /path/to/build/dir
-      args:
-        log_volum: /var/log/myapp
-        listen_port: 8080
-    source: build
-- name: Tag and Push to docker hub
-  docker_image:
-    name: myhello
-    repository: repush/cicdproject
-    push: yes
-    source: local
+- name: Docker Image Build and Push
+  hosts: ansible_host
+  gather_facts: false
+
+  tasks:
+    - command: docker image build -t repush/java-hello java-hello-world/
+    - command: docker login -u repush -p "{{ lookup('env', 'PASS') }}"
+    - command: docker push repush/cicdproject
+    - command: docker logout
+
+- name: Docker Run
+  hosts: docker_host
+  gather_facts: false
+  
+  tasks:
+    - command: docker container rm -f java-hello-world
+      ignore_errors: yes
+    - command: docker container run -d -p 8080:8080 --name java-hello-world java-hello
