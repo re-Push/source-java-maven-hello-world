@@ -1,18 +1,9 @@
-- hosts: ansible_host
-  gather_facts: no
+- name: Docker Image Build and Push
+  hosts: ansible_host
+  gather_facts: false
 
   tasks:
-    - name: Login to Docker Hub
-      docker_login:
-        username: repush
-        password: "{{ lookup('env', 'TOKEN') }}"
-        reauthorize: yes
-
-    - name: Build and Push Image
-      docker_image:
-        build:
-          path: /home/vagrant/java-hello-world
-        name: repush/cicdproject
-        tag: "{{ lookup('env', 'BUILD_NUMBER') }}"
-        push: yes
-        source: build
+    - command: docker build -tag "repush/cicdproject:{{ lookup('env', 'BUILD_NUMBER') }}" java-hello-world/
+    - command: docker login -u repush -p "{{ lookup('env', 'PASS') }}"
+    - command: docker push "repush/cicdproject:{{ lookup('env', 'BUILD_NUMBER') }}"
+    - command: docker logout
