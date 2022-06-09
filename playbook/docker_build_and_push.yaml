@@ -1,9 +1,20 @@
-- name: Docker Image Build
-  hosts: ansible_host
-  gather_facts: false
-  
-  tasks:
-    - command: docker image build -t java-hello-world java-hello-world/
-    - command: docker container rm -f java-hello-world
-      ignore_errors: yes
-    - command: docker container run --name java-hello-world -d -p 8080:8080 java-hello-world
+- name : Log into DockerHub
+  docker_login:
+    username: repush
+    password: "{{ lookup('env','PASS') }}"
+    
+- name : Build image and with build args
+  docker_image:
+    name: myhello
+    build:
+      path: /path/to/build/dir
+      args:
+        log_volum: /var/log/myapp
+        listen_port: 8080
+    source: build
+- name: Tag and Push to docker hub
+  docker_image:
+    name: myhello
+    repository: repush/cicdproject
+    push: yes
+    source: local
