@@ -3,7 +3,7 @@
   gather_facts: false
 
   tasks:
-    - command: docker build -tag "repush/cicdproject:{{ lookup('env', 'BUILD_NUMBER') }}" java-hello-world/
+    - command: docker build --tag "repush/cicdproject:{{ lookup('env', 'BUILD_NUMBER') }}" java-hello-world/
     - command: docker login -u repush -p "{{ lookup('env', 'PASS') }}"
     - command: docker push "repush/cicdproject:{{ lookup('env', 'BUILD_NUMBER') }}"
     - command: docker logout
