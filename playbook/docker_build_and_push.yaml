@@ -3,7 +3,7 @@
   gather_facts: false
 
   tasks:
-    - command: docker image build -t repush/java-hello java-hello-world/
+    - command: docker image build -t repush/cicdproject java-hello-world/
     - command: docker login -u repush -p "{{ lookup('env', 'PASS') }}"
     - command: docker push repush/cicdproject
     - command: docker logout
@@ -15,4 +15,4 @@
   tasks:
     - command: docker container rm -f java-hello-world
       ignore_errors: yes
-    - command: docker container run -d -p 8080:8080 --name java-hello-world java-hello
+    - command: docker container run -d -p 8080:8080 --name java-hello-world repush/cicdproject
