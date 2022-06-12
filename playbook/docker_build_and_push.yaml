@@ -1,5 +1,5 @@
 - name: Docker Image Build and Push
-  hosts: ansible_host
+  hosts: docker_host
   gather_facts: false
 
   tasks:
