@@ -1,4 +1,4 @@
-- hosts: k8s_host
+- hosts: ansible_host
   gather_facts: no
 
   tasks:
