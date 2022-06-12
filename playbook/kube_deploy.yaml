@@ -13,7 +13,7 @@
             name: java-hello
             namespace: default
           spec:
-            replicas: 30
+            replicas: 6
             selector:
               matchLabels:
                 app: java-hello
