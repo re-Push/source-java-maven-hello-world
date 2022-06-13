@@ -1,0 +1,26 @@
+pipeline {
+    agent any
+
+    tools {
+        // Install the Maven version configured as "M3" and add it to the path.
+        maven "M2_HOME"
+    }
+
+    stages {
+        stage('Java Build') {
+            steps {
+                // Run Maven on a Unix agent.
+                sh "mvn -Dmaven.test.failure.ignore=true clean package -f pom.xml"
+            }
+        }
+        stage('Docekr Image Build With Remote Ansible Server AND Remote Docker Server Using Publish Over SSH Module') {
+            steps {
+                sshPublisher(publishers: [sshPublisherDesc(configName: 'ansible-host', transfers: [sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: 'java-hello-world', remoteDirectorySDF: false, removePrefix: 'webapp/target/', sourceFiles: 'webapp/target/webapp.war'), sshTransfer(cleanRemote: false, excludes: '', execCommand: '', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: 'java-hello-world', remoteDirectorySDF: false, removePrefix: 'docker/', sourceFiles: 'docker/Dockerfile'), sshTransfer(cleanRemote: false, excludes: '', execCommand: '''scp java-hello-world/Dockerfile 13.125.234.12:~/
+scp java-hello-world/webapp.war 13.125.234.12:~/
+TOKEN=`echo $TOKEN` BUILD_NUMBER=`echo $BUILD_NUMBER` ansible-playbook java-hello-world/docker_build_and_push.yaml
+BUILD_NUMBER=`echo $BUILD_NUMBER` ansible-playbook java-hello-world/kube_deploy.yaml''', execTimeout: 120000, flatten: false, makeEmptyDirs: false, noDefaultExcludes: false, patternSeparator: '[, ]+', remoteDirectory: 'java-hello-world', remoteDirectorySDF: false, removePrefix: 'playbook/', sourceFiles: 'playbook/*.yaml')], usePromotionTimestamp: false, useWorkspaceInPromotion: false, verbose: true)])                
+            }
+        }
+    }
+
+}
