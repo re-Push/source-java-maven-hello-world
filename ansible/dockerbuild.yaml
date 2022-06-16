@@ -1,0 +1,25 @@
+- name: Docker VM Provisioning
+  hosts: docker_host
+  gather_facts: false
+
+  tasks:
+    - command: apt update
+      # 사용 가능한 패키지와 그 버전 리스트 업데이트
+      
+    - command: apt install -y ca-certificates curl gnupg lsb-release
+      # docker 설치
+      
+    - command: apt install -y python3-pip
+      # python3용 pip 설치 및 python 모듈 구축에 필요한 모든 종속성 설치
+      
+    - shell: curl https://get.docker.com | sh
+      # docker 설치
+      
+    - shell: usermod -aG docker ubuntu
+      ubuntu 사용자를 doker 그룹에 추가
+      
+    - pip:
+        name:
+          - docker
+          - docker-compose
+          # pip를 사용한 docker, docker-compose 설치
