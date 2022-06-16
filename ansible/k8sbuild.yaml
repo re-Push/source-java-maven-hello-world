@@ -1,0 +1,40 @@
+- name: Contorl-Plane VM Provisioning
+  hosts: controlplane_host
+  gather_facts: false
+
+  tasks:
+    - command: apt update
+    - command: apt install -y ca-certificates curl gnupg lsb-release
+    - command: apt install -y python3-pip
+    - shell: curl https://get.docker.com | sh
+    - shell: usermod -aG docker ubuntu
+    - pip:
+        name:
+          - docker
+          - docker-compose
+    - command: apt-get install -y apt-transport-https ca-certificates curl
+    - shell: curl -fsSLo /usr/share/keyrings/kubernetes-archive-keyring.gpg https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    - shell: echo "deb [signed-by=/usr/share/keyrings/kubernetes-archive-keyring.gpg] https://apt.kubernetes.io/ kubernetes-xenial main" | sudo tee /etc/apt/sources.list.d/kubernetes.list
+    - command: apt-get update
+    - shell: sudo apt-get install kubeadm=1.22.8-00 kubelet=1.22.8-00 kubectl=1.22.8-00 -y
+    - copy:
+        src: "/home/ubuntu/daemon.json"
+        dest: "/etc/docker/"
+    - shell: sudo systemctl restart docker
+    - shell: sudo systemctl daemon-reload && sudo systemctl restart kubelet
+    - shell: IPADDR=`ip addr | tail -n 8 | head -n 1 | cut -f 6 -d' ' | cut -f 1 -d '/'`
+    - shell: sudo kubeadm init --control-plane-endpoint "{{ lookup('env', 'IPADDR') }}" --pod-network-cidr 172.16.0.0/16 --apiserver-advertise-address "{{ lookup('env', 'IPADDR') }}"
+    - shell: mkdir -p /home/ubuntu/.kube
+    - shell: sudo cp -i /etc/kubernetes/admin.conf /home/ubuntu/.kube/config
+    - shell: sudo chown ubuntu:ubuntu /home/ubuntu/.kube/config
+    - fetch:
+        src: "/home/ubuntu/.kube/config"
+        dest: "/home/ubuntu/.kube/config"
+        flat: yes
+   #- shell: kubectl create -f https://projectcalico.docs.tigera.io/manifests/tigera-operator.yaml
+    - shell: curl https://projectcalico.docs.tigera.io/manifests/custom-resources.yaml -O
+    - replace:
+        path: /home/ubuntu/custom-resources.yaml
+        regexp: 192.168
+        replace: 172.16
+   #- shell: kubectl create -f custom-resources.yaml
