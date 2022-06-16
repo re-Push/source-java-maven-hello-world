@@ -1,0 +1,24 @@
+- name: Ansible VM Provisioning
+  hosts: ansible_host
+  gather_facts: false
+
+  tasks:
+    - command: apt update
+    - command: apt install -y ca-certificates curl gnupg lsb-release
+    - command: apt install -y python3-pip
+    - shell: curl https://get.docker.com | sh
+    - shell: usermod -aG docker ubuntu
+    - pip:
+        name:
+          - docker
+          - docker-compose
+    - command: apt install -y ansible
+    - command: apt install -y python3-pip
+    - shell: sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+    - shell: pip install openshift==0.11
+    - shell: echo 'ubuntu:ubuntu' | chpasswd
+    - shell: sudo systemctl restart ssh
+    - shell: mkdir /home/ubuntu/.kube
+    - shell: curl -LO https://dl.k8s.io/release/v1.22.8/bin/linux/amd64/kubectl
+    - shell: sudo install kubectl /usr/local/bin/
+   #- shell: scp ~/.kube/config .kube/config
