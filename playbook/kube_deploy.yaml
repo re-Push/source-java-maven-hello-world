@@ -8,7 +8,7 @@
         state: present
         definition:
           apiVersion: apps/v1
-          kind: Daeminset
+          kind: DaemonSet
           metadata:
             name: wordpress
             namespace: default
