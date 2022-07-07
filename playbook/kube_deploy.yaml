@@ -8,12 +8,11 @@
         state: present
         definition:
           apiVersion: apps/v1
-          kind: Deployment
+          kind: Daeminset
           metadata:
             name: wordpress
             namespace: default
           spec:
-            replicas: 6
             selector:
               matchLabels:
                 app: wordpress
